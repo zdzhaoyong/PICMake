@@ -5,7 +5,7 @@
 ## Please include this file at the last line of your Project CMakeLists.txt
 ## Things need to be set: MODULES, MAKE_TYPE
 ####################################################################
-
+cmake_minimum_required(VERSION 2.8.6)
 
 set(PICMAKE_VERSION "1.0.0")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/packages)
@@ -32,7 +32,6 @@ endif()
 
 # 2. check if it is the project directory, and find all packages if it is
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BASE_FROM_DIR)
-	cmake_minimum_required(VERSION 2.8.6)
 	if(NOT PROJECT_NAME)
 		project(${TARGET_NAME})
 		message("Start project ${TARGET_NAME}")

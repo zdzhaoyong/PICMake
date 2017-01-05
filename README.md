@@ -231,7 +231,8 @@ PICMake可以安装后对库编译进行支持，也可以直接放到库中作�
 #### 4.3.2. if(TRUE|FALSE) ... elseif() ... else() ... endif()
 True if the constant is 1, ON, YES, TRUE, Y, or a non-zero number. False if the constant is 0, OFF, NO, FALSE, N, IGNORE, NOTFOUND, the empty string, or ends in the suffix -NOTFOUND. Named boolean constants are case-insensitive. If the argument is not one of these constants, it is treated as a variable.
 
-判断表达式中常用的指令
+判断表达式中常用的指令:
+
 | 命令名        | 变量说明      |
 | ------------- |:-------------:|
 |NOT|               True if the expression is not true|

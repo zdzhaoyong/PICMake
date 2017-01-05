@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.6)
 project(PICMake)
 
 set(TARGET_NAME NO_TARGET)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 include(${CMAKE_CURRENT_LIST_DIR}/PICMake.cmake)
 
 # Build things

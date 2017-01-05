@@ -138,6 +138,7 @@ PICMake可以安装后对库编译进行支持，也可以直接放到库中作�
 ### 3.3. 编写PICMake支持的FindPackage.cmake
 对于MODULES中设定的每一个PACKAGE，都应该在packages文件夹中有相应的FindPackge.cmake文档与其对应。其中FindPackage.cmake文档需要去寻找PACKAGE的头文件路径和库文件模块。
 下表列出了FindPackage的主要输入变量：
+
 | 变量名        | 变量说明      |
 | ------------- |:-------------:|
 |PACKAGE_FIND_NAME|             需要寻找的包名字|
@@ -149,6 +150,7 @@ PICMake可以安装后对库编译进行支持，也可以直接放到库中作�
 
 对于指令`find_package(PIL 1.1.0 REQUIRED base cv）`，PIL_FIND_NAME即为PIL，PIL_FIND_VERSION为1.1.0，其中PIL_FIND_VERSION_MAJOR为1,PIL_FIND_VERSION_MINOR为1,PIL_FIND_VERSION_PATCH为0，PIL_FIND_COMPONENTS为base和cv。
 下表列出了FindPackage.cmake中需要给定的一些参数：
+
 | 变量名        | 变量说明      |
 | ------------- |:-------------:|
 |PACKAGE_FOUND |                判断包PACKAGE是否被成功找到（TRUE,FALSE)|

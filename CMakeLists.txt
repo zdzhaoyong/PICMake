@@ -5,6 +5,10 @@ set(TARGET_NAME NO_TARGET)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 include(${CMAKE_CURRENT_LIST_DIR}/PICMake.cmake)
 
+# set bin & lib to given directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/libs)
+
 # Build things
 add_subdirectory(src)
 

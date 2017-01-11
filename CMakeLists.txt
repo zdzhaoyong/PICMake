@@ -1,15 +1,23 @@
-cmake_minimum_required(VERSION 2.8.6)
+cmake_minimum_required(VERSION 3.1)
 project(PICMake)
 
-set(TARGET_NAME NO_TARGET)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
-include(${CMAKE_CURRENT_LIST_DIR}/PICMake.cmake)
 
 # Build things
-add_subdirectory(src)
 
-reportTargets()
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/PICMake.cmake)# Use PICMake
+
+pi_collect_packages(VERBOSE)# Try to collect all packages from your system
+
+if(FALSE)# Tree style
+  add_subdirectory(src)
+else()  # All in one
+  pi_add_target(StaticLibDemo STATIC src/StaticLibDemo)
+  pi_add_target(SharedLibDemo SHARED src/SharedLibDemo)
+  pi_add_target(AppDemo BIN src/AppDemo REQUIRED StaticLibDemo SharedLibDemo)
+  pi_add_target(ConditionalApp BIN src/ConditionalApp MODULES Qt PIL QGLViewer REQUIRED OpenCV)
+endif()
+
+pi_report_target()
 
 # Install things
-CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/PICMake.cmake" "${PROJECT_BINARY_DIR}/PICMake.cmake")
-install(FILES "${PROJECT_BINARY_DIR}/PICMake.cmake" DESTINATION ${CMAKE_ROOT}/Modules)
+pi_install(CMAKE ${PROJECT_SOURCE_DIR}/PICMake.cmake)

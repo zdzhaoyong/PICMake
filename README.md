@@ -70,7 +70,10 @@ cmake ..
 make
 sudo make install
 ```
-实际上make过程编译了一个简单C++程序，make install实际上是在CMake安装目录下创建了一个"PICMake.cmake"文件，并在里面include了真正的PICMake路径。
+实际上make过程编译了一个简单C++程序，`make install`实际上是在CMake安装目录下创建了一个"PICMake.cmake"文件，并在里面include了真正的PICMake路径。
+
+对于安装后的PICMake，可使用`sudo make uninstall`进行卸载。
+
 
 ### 2.3. PICMake中的使用规则
 
@@ -82,53 +85,66 @@ PICMake的目录结构如下：
 ++- PICMake.cmake       -- 安装支持文件
 ++- README.md           -- PICMake介绍文件
 ++- cmake               -- cmake相关
-+++- PICMakeLists.cmake -- PICMake的主体文档
-+++- PICMakeUtils.cmake -- PICMake的内建函数
++++- PICMake.cmake -- PICMake的主体文档
 +++- learn              -- 辅助学习的文件夹
-+++- packages           -- 存放FindPackage.cmake的文件夹
++++- FindPackage.cmake  -- 依赖包寻找脚本
 ++- scripts             -- 相关支持脚本
 ++- src                 -- 库框架示例
 ```
-为了很好地支持PICMake，程序最好遵循以下规则：
-
-1. 所有main函数都放到main.cpp中；
-2. 每个Target都有单独的文件夹，有单独的CMakeLists.txt与之对应，若含嵌套关系，上层CMakeLists.txt在包含PICMake前应`set(TARGET_NAME NO_TARGET)`；
-3. 不要建立包含字符NO_TAEGET,CMakeFiles的文件和文件夹，它们将被PICMake忽略。
 
 #### 2.3.2. 内建变量
 
+
 | 变量名        | 变量说明      |
 | ------------- |:-------------:|
-|MAKE_TYPE|                     编译类型，"bin","static","shared"
-|MODULES|                       依赖包
-|COMPILEFLAGS|                  编译选项，头文件依赖
-|LINKFLAGS|                     链接选项，库依赖
+|PACKAGE_FOUND |                判断包PACKAGE是否被成功找到（TRUE,FALSE)|
+|PACKAGE_VERSION |              返回包PACKAGE的版本号字符串|
+|PACKAGE_VERSION_MAJOR |        查找到的主版本号|
+|PACKAGE_VERSION_MINOR |        查找到的次版本号|
+|PACKAGE_VERSION_PATCH |        查找到的版本补丁号|
+|PACKAGE_INCLUDES|              同PACKAGE_INCLUDE_DIR,返回包的头文件地址|
+|PACKAGE_LIBRARIES|             同PACKAGE_LIBRARY,PACKAGE_LIBS，返回包的库依赖|
+|PACKAGE_DEFINITIONS|           返回包中需要的预编译定义|
 
 
-#### 2.3.3. 内建函数
+#### 2.3.3. 内建函数和宏
 
-| 函数名        | 函数说明      |
-| ------------- |:-------------:|
-|MAKE_TYPE|                     编译类型，"bin","static","shared"
-|reportTargets()|               报告将编译得到的所有Target
-|COMPILEFLAGS|                  编译选项，头文件依赖
-|LINKFLAGS|                     链接选项，库依赖
-
-
-
+| 函数（宏）名        | 函数说明      |
+| ------------- |:-------------|
+|  `pi_collect_packagenames(<RESULT_NAME> [VERBOSE] [path1 ...]`)| Collect all available packages from "Find*.cmake"  files and put the result to RESULT_NAME.
+| `pi_removesource(<VAR_NAME> <regex>)`| Remove all source files with name matches `<regex>`.
+| `pi_hasmainfunc(<RESULT_NAME> source1 ...)`| Look for the source files with *main* function.
+| `pi_add_target(<name> <BIN/STATIC/SHARED> <src1/dir1　...>`<br>`　　　　　　　　 [MODULES module1 ...] `<br>`　　　　　　　　 [REQUIRED module1 ...]`<br>`　　　　　　　　 [DEPENDENCY target1 ...])`|A combination of `add_executable` , `add_library`, `add_definitions` and `target_link_libraries`, `MODULES` includes packges or targets inessential and `REQUIRED` includes packages or target required,`DEPENDENCY` is used to include targets not defined and will be added after.
+|`pi_add_targets([name1 ...])`| Add one or more targets, if one, please set `TARGET_NAME`, `TARGET_TYPE`, `TARGET_SRCS`, `TARGET_MODULES`, `TARGET_REQUIRED` and so on. If more than one target, replace `TARGET` with `${TARGET_NAME}`.
+|`pi_report_target([LIBS2COMPILE] [APPS2COMPILE])`| Report all targets added.
+|`pi_install([HEADERS header1/dir1 ...]`<br>`　　　　　　 [TARGETS target1 ...]`<br>`　　　　　　 [CMAKE cmake_config]`<br>`　　　　　　 [BIN_DESTINATION dir] `<br>`　　　　　　 [LIB_DESTINATION dir] `<br>`　　　　　　 [HEADER_DESTINATION dir])`| A combination of multi install commands and auto support `make install` and `make uninstall`.
+|`pi_collect_packages(<RESULT_NAME> [VERBOSE] `<br>`　　　　　　　　　　　　[MODULES package1 ...]`<br>`　　　　　　　　　　　　[REQUIRED package1 package2 ...])`| Find multi packages with `find_package()` and collect available packages to `RESULT_NAME`. All packages will be checked and once with `VERBOSE` ON, all information will be reported.
+|`pi_check_modules(module1 [module2 ...])`| Let module name to upper and make valid `_FOUND`, `_INCLUDES`, `_LIBRARIES`, `_DEFINITIONS`.
+|`pi_report_modules(module1 [module2 ...])`| Report packages information summary.
 ## 3. PICMake使用介绍
 
 ### 3.1. 利用PICMake编译简单程序和库
-利用PICMake编译单个程序和库非常简单，只需要在CMakeLists.txt文件中加入最少两行即可，对于不仅依赖标准库的程序需要额外加一行，对于指定编译类型额外加一行。
+利用PICMake编译单个程序和库非常简单，如下是一个比较通用的示例。
 ```
 cmake_minimum_required(VERSION 2.8) #这一行在新的cmake版本中必须有，想尽办法偶都没法砍掉
 
-set(MakeType "shared") 		# bin shared static 分别对应可执行文件 动态库 静态库，如果不设定系统会根据是否含有main.cpp 和 main.c判断应该编译库还是可执行
-
-set(MODULES OpenCV Eigen3)	# 只有在程序有库依赖时候才需要，目前只需要把所依赖的库一股脑列上去就好，注意这里的名字应该与packages里面的FindPackage.cmake对应，我在想后面直接把这一句砍掉好了，让系统自己来判断
-
 include(PICMake)			# 现在就让PICMake来帮你完成一切吧！
 
+pi_collect_packages(VERBOSE) # 收集系统中的所有支持库
+# pi_collect_packages(VERBOSE MODULES QT OPENGL BOOST PIL REQUIRED OPENCV) # 收集指定库
+
+# 必须库OPENCV，其他都为可选库，程序中通过`#ifdef HAS_QT`等进行判断
+set(TARGET_REQUIRED OPENCV)
+set(TARGET_MODULES QT OPENGL BOOST PIL)
+
+# set(TARGET_NAME demo) #设置目标名为demo, 默认为文件夹名
+# set(TARGET_SRCS src) #设置源文件或源文件路径，默认为当前文件夹下的所有cpp,c,cc文件
+# set(TARGET_TYPE bin) # 设置编译类型，可以是BIN,SHARED,STATIC不区分大小写，如果包含'main.'文件则默认为BIN，否则判断BUILD_SHARED_LIBS决定库类型
+
+pi_add_targets()
+#pi_add_target(demo BIN . REQUIRED OPENCV MODULES QT OPENGL BOOST PIL) #可替代以上几行
+
+pi_report_targets() #报告将生成的所有目标
 ```
 
 ### 3.2. 利用PICMake编译复杂库
@@ -162,7 +178,7 @@ PICMake可以安装后对库编译进行支持，也可以直接放到库中作�
 |PACKAGE_LIBRARIES|             同PACKAGE_LIBRARY,PACKAGE_LIBS，返回包的库依赖|
 |PACKAGE_DEFINITIONS|           返回包中需要的预编译定义|
 
-其详细实现可参考packages目录下的FindPIL.cmake。
+其详细实现可参考FindPIL.cmake。
 
 ## 4. 附录
 

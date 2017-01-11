@@ -6,7 +6,7 @@
 #   1.1.1 2017.01.09 : added pi_install with install and uninstall support.
 ######################################################################################
 #                               FUNCTIONS
-# pi_collect_packagenames(<RESULT_NAME> [path1 path2 ...])
+# pi_collect_packagenames(<RESULT_NAME>　[VERBOSE] [path1 path2 ...])
 # pi_removesource(<VAR_NAME> <regex>)
 # pi_hasmainfunc(<RESULT_NAME> source1 [source2 ...])
 # pi_add_target(<name> <BIN | STATIC | SHARED> <src1|dir1> [src2 ...] [MODULES module1 ...] [REQUIRED module1 ...] [DEPENDENCY target1 ...])

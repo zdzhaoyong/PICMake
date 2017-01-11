@@ -109,8 +109,9 @@ PICMake的目录结构如下：
 
 #### 2.3.3. 内建函数和宏
 
+
 | 函数（宏）名        | 函数说明      |
-| -- |:-|
+| ----- |:---|
 |  `pi_collect_packagenames(<RESULT_NAME> [VERBOSE] [path1 ...]`)| Collect all available packages from "Find*.cmake"  files and put the result to RESULT_NAME.
 | `pi_removesource(<VAR_NAME> <regex>)`| Remove all source files with name matches `<regex>`.
 | `pi_hasmainfunc(<RESULT_NAME> source1 ...)`| Look for the source files with *main* function.

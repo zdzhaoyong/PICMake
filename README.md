@@ -215,27 +215,52 @@ PICMake可以安装后对库编译进行支持，也可以直接放到库中作�
 |CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS |用来控制IF ELSE语句的书写方式|
 
 ### 4.2. CMake常用命令
-| 命令名        | 变量说明      |
-| ------------- |:-------------:|
-|project()|                     设置工程名 `project(PROJECT_NAME)`|
-|set()|                         设置变量值`set(VALUE_NAME VALUE)`|
-|unset()|                       unset(VAR CACHE) 用于移除变量 VAR|
-|include()|                     包含文件|
-|cmake_minimum_required()|      设置CMake版本要求`cmake_minimum_required(VERSION 2.8.6)`|
-|message()|                     `message("Something you wanna show")`|
-|list()|                        `list(APPEND VALUE_NAME VALUE)`|
-|include_directories()||
-|file()|                        `file(GLOB_RECURSE SOURCE_FILES_ALL RELATIVE "CMAKE_BASE_FROM_DIR" *.cpp *.c *.cc`)
-|get_filename_component()|      `get_filename_component(TARGET_NAME SRC_NAME NAME)`|
-|string()|                      `string(REPLACE " " "_" TARGET_NAME {TARGET_NAME}`)
-|add_executable()|              `add_executable(${TARGET_NAME} ${CMAKE_BASE_FROM_DIR} ${SOURCE_FILES_ALL})`|
-|add_library() |                `add_library({TARGET_NAME} STATIC {CMAKE_BASE_FROM_DIR} {SOURCE_FILES_ALL})`|
-|target_link_libraries()|       `target_link_libraries({TARGET_NAME} {LINKFLAGS})`|
-|find_package()|                `find_package(OpenCV 2.4.9 REQUIRED core highgui)`|
-|set_property()|                `set_property( GLOBAL APPEND PROPERTY APPS2COMPILE  "VALUE")`|
-|get_property()|                `get_property(LIBS2COMPILE GLOBAL PROPERTY LIBS2COMPILE)`|
-|add_subdirectory()|            `add_subdirectory(src)`|
+| 命令名        |
+| ------------- |
+|`project(<PROJECT-NAME> [LANGUAGES] [<language-name>...])`<br>`project(<PROJECT-NAME>`<br>`　　　　　[VERSION <major>[.<minor>[.<patch>[.<tweak>]]]]`<br>`　　　　　[LANGUAGES <language-name>...])`
+|`set(<variable> <value>`<br> `　[[CACHE <type> <docstring> [FORCE]] \| PARENT_SCOPE])` <br> `set(<variable> <value1> ... <valueN>)`|
+|`unset(<variable> [CACHE \| PARENT_SCOPE])` <br> `unset(ENV{LD_LIBRARY_PATH})`|
+|`include(<file\|module> [OPTIONAL] [RESULT_VARIABLE <VAR>]` <br> `　　　　　　　　　　　　 [NO_POLICY_SCOPE])`| 
+|`cmake_minimum_required(VERSION major[.minor[.patch[.tweak]]]`<br>` 　　　　　　　　　　　　　  [FATAL_ERROR])`<br>`cmake_policy(VERSION major[.minor[.patch[.tweak]]])`| 设置CMake版本要求`cmake_minimum_required(VERSION 2.8.6)`|
+|`message([<mode>] "message to display" ...)` `STATUS`, `WARNING`, `AUTHOR_WARNING`， `SEND_ERROR`， `FATAL_ERROR`， `DEPRECATION`|                     `message("Something you wanna show")`|
+|`list(LENGTH <list> <output variable>)`<br>`list(GET <list> <element index> [<element index> ...]`<br>`　　　<output variable>)`<br>`list(APPEND <list> [<element> ...])`<br>`list(FIND <list> <value> <output variable>)`<br>`list(INSERT <list> <element_index> <element> [<element> ...])`<br>`list(REMOVE_ITEM <list> <value> [<value> ...])`<br>`list(REMOVE_AT <list> <index> [<index> ...])`<br>`list(REMOVE_DUPLICATES <list>)`<br>`list(REVERSE <list>)`<br>`list(SORT <list>)`|
+|`include_directories([AFTER\|BEFORE] [SYSTEM] dir1 [dir2 ...])`|
+|`file(WRITE filename "message to write"... )`<br>`file(APPEND filename "message to write"... )`<br>`file(READ filename variable [LIMIT numBytes] [OFFSET offset] [HEX])`<br>`file(<MD5\|SHA1\|SHA224\|SHA256\|SHA384\|SHA512> filename variable)`<br>`file(STRINGS filename variable [LIMIT_COUNT num]`<br>`　　　[LIMIT_INPUT numBytes] [LIMIT_OUTPUT numBytes]`<br>`　　　[LENGTH_MINIMUM numBytes] [LENGTH_MAXIMUM numBytes]`<br>`　　　[NEWLINE_CONSUME] [REGEX regex]`<br>`     　　　[NO_HEX_CONVERSION])`<br>`file(GLOB variable [RELATIVE path] [globbing expressions]...)`<br>`file(GLOB_RECURSE variable [RELATIVE path]`<br>`　　　[FOLLOW_SYMLINKS] [globbing expressions]...)`<br>`file(RENAME <oldname> <newname>)`<br>`file(REMOVE [file1 ...])`<br>`file(REMOVE_RECURSE [file1 ...])`<br>`file(MAKE_DIRECTORY [directory1 directory2 ...])`<br>`file(RELATIVE_PATH variable directory file)`<br>`file(TO_CMAKE_PATH path result)`<br>`file(TO_NATIVE_PATH path result)`<br>`file(DOWNLOAD url file [INACTIVITY_TIMEOUT timeout]`<br>`　　　[TIMEOUT timeout] [STATUS status] [LOG log] [SHOW_PROGRESS]`<br>`　　　[EXPECTED_HASH ALGO=value] [EXPECTED_MD5 sum]`<br>`　　　[TLS_VERIFY on\|off] [TLS_CAINFO file])`<br>`file(UPLOAD filename url [INACTIVITY_TIMEOUT timeout]`<br>`　　　[TIMEOUT timeout] [STATUS status] [LOG log] [SHOW_PROGRESS])`<br>`file(TIMESTAMP filename variable [<format string>] [UTC])`<br>`file(GENERATE OUTPUT output_file`<br>`　　　<INPUT input_file\|CONTENT input_content>`<br>`　　　[CONDITION expression])`|                        `file(GLOB_RECURSE SOURCE_FILES_ALL RELATIVE "CMAKE_BASE_FROM_DIR" *.cpp *.c *.cc`)
+|`get_filename_component(<VAR> <FileName> <COMP> [CACHE])`<br>`DIRECTORY` = Directory without file name<br>`NAME`      = File name without directory<br>`EXT`       = File name longest extension (.b.c from d/a.b.c)<br>`NAME_WE`   = File name without directory or longest extension<br>`ABSOLUTE`  = Full path to file<br>`REALPATH`  = Full path to existing file with symlinks resolved<br>`PATH`      = Legacy alias for DIRECTORY (use for CMake <= 2.8.11)|   
+|`string(REGEX MATCH <regular_expression> `<br>`　　　　<output variable> <input> [<input>...])`<br>`string(REGEX MATCHALL <regular_expression>`<br>`　　　　<output variable> <input> [<input>...])`<br>`string(REGEX REPLACE <regular_expression>`<br>`    　　　　<replace_expression> <output variable>`<br>`　　　　<input> [<input>...])`<br>`string(REPLACE <match_string>`<br>` 　　　　<replace_string> <output variable>`<br>`　　　　<input> [<input>...])`<br>`string(CONCAT <output variable> [<input>...])`<br>`string(<MD5\|SHA1\|SHA224\|SHA256\|SHA384\|SHA512>`<br>`　　　　 <output variable> <input>)`<br>`string(COMPARE EQUAL <string1> <string2> <output variable>)`<br>`string(COMPARE NOTEQUAL <string1> <string2> <output variable>)`<br>`string(COMPARE LESS <string1> <string2> <output variable>)`<br>`string(COMPARE GREATER <string1> <string2> <output variable>)`<br>`string(ASCII <number> [<number> ...] <output variable>)`<br>`string(CONFIGURE <string1> <output variable>`<br>`　　　　[@ONLY] [ESCAPE_QUOTES])`<br>`string(TOUPPER <string1> <output variable>)`<br>`string(TOLOWER <string1> <output variable>)`<br>`string(LENGTH <string> <output variable>)`<br>`string(SUBSTRING <string> <begin> <length> <output variable>)`<br>`string(STRIP <string> <output variable>)`<br>`string(RANDOM [LENGTH <length>] [ALPHABET <alphabet>]`<br>`　　　　[RANDOM_SEED <seed>] <output variable>)`<br>`string(FIND <string> <substring> <output variable>`<br>`　　　　[REVERSE])`<br>`string(TIMESTAMP <output variable> [<format string>] [UTC])`<br>`string(MAKE_C_IDENTIFIER <input string> <output variable>)`|
+|`add_executable(<name> [WIN32] [MACOSX_BUNDLE]`<br>`　　　　　　　　 [EXCLUDE_FROM_ALL]`<br>`　　　　　　　　 source1 [source2 ...])`<br>`add_executable(<name> IMPORTED [GLOBAL])`<br>`add_executable(<name> ALIAS <target>)`|
+|`add_library(<name> [STATIC \| SHARED \| MODULE]`<br>`　　　　　　 [EXCLUDE_FROM_ALL]`<br>`　　　　　 　source1 [source2 ...])`<br>`add_library(<name> <SHARED\|STATIC\|MODULE\|UNKNOWN> IMPORTED`<br>`　　　　　 　[GLOBAL])`<br>`add_library(<name> OBJECT <src>...)`<br>`add_library(<name> ALIAS <target>)`<br>`add_library(<name> INTERFACE [IMPORTED [GLOBAL]])`|
+|`target_link_libraries(<target> [item1 [item2 [...]]]`<br>`　　　　　 　　　　　　　  [[debug\|optimized\|general] <item>] ...)`<br>`target_link_libraries(<target>`<br>`                    　　　　　 　　　　　　　  <PRIVATE\|PUBLIC\|INTERFACE> <lib> ...`<br>`　　　　　 　　　　　　　  [<PRIVATE\|PUBLIC\|INTERFACE> <lib> ... ] ...])`
 
+```
+find_package(<package> [version] [EXACT] [QUIET] [MODULE]
+             [REQUIRED] [[COMPONENTS] [components...]]
+             [OPTIONAL_COMPONENTS components...]
+             [NO_POLICY_SCOPE])
+             
+set_property(<GLOBAL                            |
+              DIRECTORY [dir]                   |
+              TARGET    [target1 [target2 ...]] |
+              SOURCE    [src1 [src2 ...]]       |
+              TEST      [test1 [test2 ...]]     |
+              CACHE     [entry1 [entry2 ...]]>
+             [APPEND] [APPEND_STRING]
+             PROPERTY <name> [value1 [value2 ...]])
+
+get_property(<variable>
+             <GLOBAL             |
+              DIRECTORY [dir]    |
+              TARGET    <target> |
+              SOURCE    <source> |
+              TEST      <test>   |
+              CACHE     <entry>  |
+              VARIABLE>
+             PROPERTY <name>
+             [SET | DEFINED | BRIEF_DOCS | FULL_DOCS])
+             
+add_subdirectory(source_dir [binary_dir]
+                 [EXCLUDE_FROM_ALL])
+```
 
 ### 4.3. CMake常用语法
 

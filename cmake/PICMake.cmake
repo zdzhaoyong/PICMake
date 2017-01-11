@@ -13,6 +13,7 @@
 # pi_add_targets([name1 ...])
 # pi_report_target([LIBS2COMPILE] [APPS2COMPILE])
 # pi_install([HEADERS header1|dir1 ...] [TARGETS target1 ...] [CMAKE cmake_config] [BIN_DESTINATION dir] [LIB_DESTINATION dir] [HEADER_DESTINATION dir])
+# pi_parse_arguments(<prefix> <options> <one_value_keywords> <multi_value_keywords> args...)
 ######################################################################################
 #                               MACROS
 # pi_collect_packages(<RESULT_NAME> [VERBOSE] [MODULES package1 ...] [REQUIRED package1 package2 ...])
@@ -20,7 +21,7 @@
 # pi_report_modules(module1 [module2 ...])
 ######################################################################################
 
-cmake_minimum_required(VERSION 3.1)
+#cmake_minimum_required(VERSION 2.6)
 
 if(NOT PICMAKE_LOADED)
 	list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
@@ -306,80 +307,40 @@ endfunction()
 
 # pi_install([HEADERS header1|dir1 ...] [TARGETS target1 ...] [CMAKE cmake_config] [BIN_DESTINATION dir] [LIB_DESTINATION dir] [HEADER_DESTINATION dir])
 function(pi_install)
+  cmake_parse_arguments(PI_INSTALL "VERBOSE" "BIN_DESTINATION;LIB_DESTINATION;HEADER_DESTINATION" "HEADERS;TARGETS;CMAKE" ${ARGN})
 
-  set(BIN_DESTINATION bin)
-  set(LIB_DESTINATION lib)
-  set(HEADER_DESTINATION include)
-
-  set(PARSE_STATUS "TARGETS")
-  set(INSTALL_HEADERS)
-  set(INSTALL_TARGETS)
-  set(INSTALL_CMAKE)
-
-  foreach(PARA ${ARGN})
-    if(PARA STREQUAL "VERBOSE")
-      set(PARSE_VERBOSE TRUE)
-    elseif(PARA STREQUAL "HEADERS")
-      set(PARSE_STATUS HEADERS)
-    elseif(PARA STREQUAL "TARGETS")
-      set(PARSE_STATUS TARGETS)
-    elseif(PARA STREQUAL "CMAKE")
-      set(PARSE_STATUS CMAKE)
-    elseif(PARA STREQUAL "BIN_DESTINATION")
-      set(PARSE_STATUS BIN_DESTINATION)
-    elseif(PARA STREQUAL "LIB_DESTINATION")
-      set(PARSE_STATUS LIB_DESTINATION)
-    elseif(PARA STREQUAL "HEADER_DESTINATION")
-      set(PARSE_STATUS HEADER_DESTINATION)
-    elseif(PARSE_STATUS STREQUAL "HEADERS")
-      list(APPEND INSTALL_HEADERS ${PARA})
-    elseif(PARSE_STATUS STREQUAL "TARGETS")
-      list(APPEND INSTALL_TARGETS ${PARA})
-    elseif(PARSE_STATUS STREQUAL "CMAKE")
-      list(APPEND INSTALL_CMAKE ${PARA})
-    elseif(PARSE_STATUS STREQUAL "BIN_DESTINATION")
-      set(BIN_DESTINATION ${PARA})
-    elseif(PARSE_STATUS STREQUAL "LIB_DESTINATION")
-      set(LIB_DESTINATION ${PARA})
-    elseif(PARSE_STATUS STREQUAL "HEADER_DESTINATION")
-      set(HEADER_DESTINATION ${PARA})
-    else()
-      message("PARSE_STATUS: ${PARSE_STATUS}, PARA: ${PARA}, failed to parse command pi_install ${ARGV}")
-    endif()
-  endforeach()
-
-  if(PARSE_VERBOSE)
-    message("BIN_DESTINATION: ${BIN_DESTINATION}")
-    message("LIB_DESTINATION: ${LIB_DESTINATION}")
-    message("HEADER_DESTINATION: ${HEADER_DESTINATION}")
-    message("INSTALL_HEADERS: ${INSTALL_HEADERS}")
-    message("INSTALL_TARGETS: ${INSTALL_TARGETS}")
-    message("INSTALL_CMAKE: ${INSTALL_CMAKE}")
+  if(PI_INSTALL_VERBOSE)
+    message("PI_INSTALL_BIN_DESTINATION: ${PI_INSTALL_BIN_DESTINATION}")
+    message("PI_INSTALL_LIB_DESTINATION: ${PI_INSTALL_LIB_DESTINATION}")
+    message("PI_INSTALL_HEADER_DESTINATION: ${PI_INSTALL_HEADER_DESTINATION}")
+    message("PI_INSTALL_HEADERS: ${PI_INSTALL_HEADERS}")
+    message("PI_INSTALL_TARGETS: ${PI_INSTALL_TARGETS}")
+    message("PI_INSTALL_CMAKE: ${PI_INSTALL_CMAKE}")
   endif()
 
-  foreach(INSTALL_HEADER ${INSTALL_HEADERS})
+  foreach(INSTALL_HEADER ${PI_INSTALL_HEADERS})
     #message("get_filename_component(ABSOLUTE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${INSTALL_HEADER}" ABSOLUTE)")
     get_filename_component(ABSOLUTE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${INSTALL_HEADER}" ABSOLUTE)
     if(IS_DIRECTORY ${ABSOLUTE_PATH})
       #message("install(DIRECTORY ${INSTALL_HEADER} DESTINATION "${HEADER_DESTINATION}" FILES_MATCHING PATTERN "*.h")")
-      install(DIRECTORY ${ABSOLUTE_PATH} DESTINATION "${HEADER_DESTINATION}" FILES_MATCHING PATTERN "*.h")
-      install(DIRECTORY ${ABSOLUTE_PATH} DESTINATION "${HEADER_DESTINATION}" FILES_MATCHING PATTERN "*.hpp")
+      install(DIRECTORY ${ABSOLUTE_PATH} DESTINATION "${PI_INSTALL_HEADER_DESTINATION}" FILES_MATCHING PATTERN "*.h")
+      install(DIRECTORY ${ABSOLUTE_PATH} DESTINATION "${PI_INSTALL_HEADER_DESTINATION}" FILES_MATCHING PATTERN "*.hpp")
     else()
       #message("install(FILES ${INSTALL_HEARDERS} DESTINATION ${HEADER_DESTINATION} COMPONENT main) ")
-      install(FILES ${INSTALL_HEARDERS} DESTINATION ${HEADER_DESTINATION} COMPONENT main)      
+      install(FILES ${INSTALL_HEARDERS} DESTINATION ${PI_INSTALL_HEADER_DESTINATION} COMPONENT main)      
     endif()
   endforeach()
 
-  foreach(TARGET ${INSTALL_TARGETS})
+  foreach(TARGET ${PI_INSTALL_TARGETS})
     if(TARGET ${TARGET})
       install(TARGETS ${TARGET}
-          RUNTIME DESTINATION ${BIN_DESTINATION} COMPONENT main
-          LIBRARY DESTINATION ${LIB_DESTINATION} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE COMPONENT main
-          ARCHIVE DESTINATION ${LIB_DESTINATION} COMPONENT main)
+          RUNTIME DESTINATION ${PI_INSTALL_BIN_DESTINATION} COMPONENT main
+          LIBRARY DESTINATION ${PI_INSTALL_LIB_DESTINATION} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE COMPONENT main
+          ARCHIVE DESTINATION ${PI_INSTALL_LIB_DESTINATION} COMPONENT main)
     endif()
   endforeach()
 
-  foreach(CONFG_FILE ${INSTALL_CMAKE})
+  foreach(CONFG_FILE ${PI_INSTALL_CMAKE})
     get_filename_component(CONFIG_NAME "${CONFG_FILE}" NAME_WE)
     configure_file("${CONFG_FILE}" "${PROJECT_BINARY_DIR}/${CONFIG_NAME}.cmake" @ONLY)
     install(FILES "${PROJECT_BINARY_DIR}/${CONFIG_NAME}.cmake" DESTINATION ${CMAKE_ROOT}/Modules)
@@ -404,57 +365,102 @@ ENDFOREACH()
 
 endfunction()
 
+# pi_parse_arguments(<prefix> <options> <one_value_keywords> <multi_value_keywords> args...)
+function(pi_parse_arguments prefix _optionNames _singleArgNames _multiArgNames)
+  # first set all result variables to empty/FALSE
+  foreach(arg_name ${_singleArgNames} ${_multiArgNames})
+    set(${prefix}_${arg_name})
+  endforeach()
+
+  foreach(option ${_optionNames})
+    set(${prefix}_${option} FALSE)
+  endforeach()
+
+  set(${prefix}_UNPARSED_ARGUMENTS)
+
+  set(insideValues FALSE)
+  set(currentArgName)
+
+  # now iterate over all arguments and fill the result variables
+  foreach(currentArg ${ARGN})
+    list(FIND _optionNames "${currentArg}" optionIndex)  # ... then this marks the end of the arguments belonging to this keyword
+    list(FIND _singleArgNames "${currentArg}" singleArgIndex)  # ... then this marks the end of the arguments belonging to this keyword
+    list(FIND _multiArgNames "${currentArg}" multiArgIndex)  # ... then this marks the end of the arguments belonging to this keyword
+
+    if(${optionIndex} EQUAL -1  AND  ${singleArgIndex} EQUAL -1  AND  ${multiArgIndex} EQUAL -1)
+      if(insideValues)
+        if("${insideValues}" STREQUAL "SINGLE")
+          set(${prefix}_${currentArgName} ${currentArg})
+          set(insideValues FALSE)
+        elseif("${insideValues}" STREQUAL "MULTI")
+          list(APPEND ${prefix}_${currentArgName} ${currentArg})
+        endif()
+      else()
+        list(APPEND ${prefix}_UNPARSED_ARGUMENTS ${currentArg})
+      endif()
+    else()
+      if(NOT ${optionIndex} EQUAL -1)
+        set(${prefix}_${currentArg} TRUE)
+        set(insideValues FALSE)
+      elseif(NOT ${singleArgIndex} EQUAL -1)
+        set(currentArgName ${currentArg})
+        set(${prefix}_${currentArgName})
+        set(insideValues "SINGLE")
+      elseif(NOT ${multiArgIndex} EQUAL -1)
+        set(currentArgName ${currentArg})
+        set(${prefix}_${currentArgName})
+        set(insideValues "MULTI")
+      endif()
+    endif()
+
+  endforeach()
+
+  # propagate the result variables to the caller:
+  foreach(arg_name ${_singleArgNames} ${_multiArgNames} ${_optionNames})
+    set(${prefix}_${arg_name}  ${${prefix}_${arg_name}} PARENT_SCOPE)
+  endforeach()
+  set(${prefix}_UNPARSED_ARGUMENTS ${${prefix}_UNPARSED_ARGUMENTS} PARENT_SCOPE)
+
+endfunction()
 ######################################################################################
 #                               MACROS
 
 # pi_collect_packages([RESULT_NAME] [VERBOSE] [MODULES package1 ...] [REQUIRED package1 package2 ...])
 macro(pi_collect_packages)
-
-  set(PARSE_STATUS "RESULT_NAME")
-  
-  foreach(PARA ${ARGN})
-    if(PARA STREQUAL "VERBOSE")
-      set(COLLECT_VERBOSE TRUE)
-    elseif(PARA STREQUAL "MODULES")
-      set(PARSE_STATUS MODULES)
-    elseif(PARA STREQUAL "REQUIRED")
-      set(PARSE_STATUS REQUIRED)
-    elseif(PARSE_STATUS STREQUAL "RESULT_NAME")
-      set(RESULT_NAME ${PARA})
-    elseif(PARSE_STATUS STREQUAL "MODULES")
-      list(APPEND COLLECT_MODULES ${PARA})
-    elseif(PARSE_STATUS STREQUAL "REQUIRED")
-      list(APPEND COLLECT_REQUIRED ${PARA})
-    else()
-      message("PARSE_STATUS: ${PARSE_STATUS}, PARA: ${PARA}, failed to parse command pi_collect_packages ${ARGV}")
-    endif()
-  endforeach()
-
-  if( (NOT COLLECT_MODULES) AND (NOT COLLECT_REQUIRED) )
-		pi_collect_packagenames(COLLECT_MODULES)
-  endif()
-
-  if(NOT COLLECT_VERBOSE)
-    set(COLLECT_FLAGS QUIET)
-  endif()
-
-  foreach(PACKAGE_NAME ${COLLECT_REQUIRED})
-    find_package(${PACKAGE_NAME} REQUIRED ${COLLECT_FLAGS})
-  endforeach()
-  
-  foreach(PACKAGE_NAME ${COLLECT_MODULES})
-    find_package(${PACKAGE_NAME} ${COLLECT_FLAGS})
-  endforeach()
-
-  list(APPEND COLLECT_MODULES ${COLLECT_REQUIRED})
-
-  if(COLLECT_VERBOSE)
-    pi_report_modules(${COLLECT_MODULES})
+  cmake_parse_arguments(PI_COLLECT "VERBOSE" "" "MODULES;REQUIRED" ${ARGV})
+  list(LENGTH PI_COLLECT_UNPARSED_ARGUMENTS PI_COLLECT_UNPARSED_NUM)
+  if(PI_COLLECT_UNPARSED_ARGUMENTS GREATER 1)
+    message("Error parsing pi_collect_packages(${ARGV})")
+    return()
   else()
-    pi_check_modules(${COLLECT_REQUIRED})
+    set(RESULT_NAME ${PI_COLLECT_UNPARSED_ARGUMENTS})
   endif()
 
-  foreach(PACKAGE_NAME ${COLLECT_MODULES})
+  if( (NOT PI_COLLECT_MODULES) AND (NOT PI_COLLECT_REQUIRED) )
+		pi_collect_packagenames(PI_COLLECT_MODULES)
+  endif()
+
+  if(NOT PI_COLLECT_VERBOSE)
+    set(PI_COLLECT_FLAGS QUIET)
+  endif()
+
+  foreach(PACKAGE_NAME ${PI_COLLECT_REQUIRED})
+    find_package(${PACKAGE_NAME} REQUIRED ${PI_COLLECT_FLAGS})
+  endforeach()
+  
+  foreach(PACKAGE_NAME ${PI_COLLECT_MODULES})
+    find_package(${PACKAGE_NAME} ${PI_COLLECT_FLAGS})
+  endforeach()
+
+  list(APPEND PI_COLLECT_MODULES ${PI_COLLECT_REQUIRED})
+
+  if(PI_COLLECT_VERBOSE)
+    pi_report_modules(${PI_COLLECT_MODULES})
+  else()
+    pi_check_modules(${PI_COLLECT_REQUIRED})
+  endif()
+
+  foreach(PACKAGE_NAME ${PI_COLLECT_MODULES})
     string(TOUPPER ${PACKAGE_NAME} PACKAGE_NAME_UPPER)
     if(${PACKAGE_NAME_UPPER}_FOUND)
       list(APPEND ${RESULT_NAME} ${PACKAGE_NAME})

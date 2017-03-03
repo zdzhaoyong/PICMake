@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 2.6)
 project(PICMake)
 
 
+# set bin & lib to given directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/libs)
+
 # Build things
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/PICMake.cmake)# Use PICMake

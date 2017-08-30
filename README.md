@@ -1,4 +1,4 @@
-# PICMake （版本 1.0）
+# PICMake （版本 1.2）
 
 ---
 
@@ -130,20 +130,7 @@ PICMake的目录结构如下：
 cmake_minimum_required(VERSION 2.8) #这一行在新的cmake版本中必须有，想尽办法偶都没法砍掉
 
 include(PICMake)			# 现在就让PICMake来帮你完成一切吧！
-
-pi_collect_packages(VERBOSE) # 收集系统中的所有支持库
-# pi_collect_packages(VERBOSE MODULES QT OPENGL BOOST PIL REQUIRED OPENCV) # 收集指定库
-
-# 必须库OPENCV，其他都为可选库，程序中通过`#ifdef HAS_QT`等进行判断
-set(TARGET_REQUIRED OPENCV)
-set(TARGET_MODULES QT OPENGL BOOST PIL)
-
-# set(TARGET_NAME demo) #设置目标名为demo, 默认为文件夹名
-# set(TARGET_SRCS src) #设置源文件或源文件路径，默认为当前文件夹下的所有cpp,c,cc文件
-# set(TARGET_TYPE bin) # 设置编译类型，可以是BIN,SHARED,STATIC不区分大小写，如果包含'main.'文件则默认为BIN，否则判断BUILD_SHARED_LIBS决定库类型
-
-pi_add_targets()
-#pi_add_target(demo BIN . REQUIRED OPENCV MODULES QT OPENGL BOOST PIL) #可替代以上几行
+pi_add_target(demo BIN . REQUIRED OpenCV MODULES Qt) #自动查找依赖，支持多目标
 
 pi_report_targets() #报告将生成的所有目标
 ```

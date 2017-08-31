@@ -1,133 +1,61 @@
-# PICMake （版本 1.2）
+# CMake
 
 ---
 
-## 1. PICMake简介
-### 1.1. PICMake是神马？
-你还在学[CMake](./cmake/CMake.md)的过程中毫无头绪吗？你还在为复杂程序库依赖发愁吗？你是否觉得原生CMake的编写冗余而低效？那就快来学习和使用PICMake吧！只需要一行，无论是可执行，动态库还是静态库，轻松搞定！同时高效支持多目标，复杂库的编译安装，从此告别大量荣誉CMake代码，专注开发核心应用程序，编译不再愁！
-例如下面是使用PICMake编译一个依赖OpenGL的可执行文件，只需要一行！（第一行是加载PICMake，好吧，如果也要算那就是两行）：
+## 1. CMake简介
+
+### 1.1. CMake是神马？
+CMake是一个跨平台的安装（编译）工具，可以用简单的语句来描述所有平台的安装(编译过程)。他能够输出各种各样的makefile或者project文件，能测试编译器所支持的C++特性,类似UNIX下的automake。只是 CMake 的组态档取名为 CmakeLists.txt。Cmake 并不直接建构出最终的软件，而是产生标准的建构档（如 Unix 的 Makefile 或 Windows Visual C++ 的 projects/workspaces），然后再依一般的建构方式使用。这使得熟悉某个集成开发环境（IDE）的开发者可以用标准的方式建构他的软件，这种可以使用各平台的原生建构系统的能力是 CMake 和 SCons 等其他类似系统的区别之处。
+
+## 2. CMake安装
+Linux平台安装：只需要使用一个简单的命令：
+
+        sudo apt-get install cmake
+
+Windows平台安装：可在官网(http://www.cmake.org)上直接下载最新的CMake版本并安装。
+
+## 3. CMake使用
+### 3.1. 利用CMake编译简单程序
+例如对于依赖Qt的简单程序，其CMakeLists.txt可以这样编写(见cmake/learn/testCMakeApp)：
+
 ```
-include(PICMake)
-pi_add_target(demo BIN src main.cpp REQUIRED OpenGL)
+# + testCMakeApp
+# -- main.cpp
+# -- CMakeLists.txt
+
+cmake_minimum_required(VERSION 2.8) 
+project(testCMakeApp)
+
+set(CMAKE_AUTOMOC ON)
+
+find_package(Qt4 REQUIRED) # find Qt4
+
+include_directories(${QT_INCLUDES})
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} Qt4::QtGui Qt4::QtXml)
 ```
-从此告别一堆罗嗦的find_package和其他冗余代码！
-
-那么如何做到的呢？这一切的秘密都在*PICMake.cmake*这一个文件中哦,稍微啃一啃这个代码，绝对瞬间提高你对CMake的认识水平哦～好啦好啦，源码我们留给大家自己去深究，小编先给大家介绍PICMake的使用吧！
-
-*注释：
-由于CMake仍然有很多弹性，不够统一的风格可能导致相互之间的支持较差，因此导致用户的工作量增大。
-可以认为PICMake其实是规定了一个使用CMake的标准,当用户按照此标准来使用CMake时，可以大大简化工作流程。PICMake目前主要针对Linux下的C++工程，目前主要集成了CV领域的常用库支持，我们将持续对其进行改进更新，也欢迎更多开发者提出更多的意见！*
-
-
-### 1.2. PICMake的安装
-好啦好啦，安装PICMake与使用CMake的过程完全一致，相信编译过CMake项目的娃子们一定不会陌生（嘿嘿～～），同时我们也建议大家使用下面的习惯来编译CMake项目哦：
+### 3.2. 利用CMake编译简单库
+例如对于依赖OpenCV的简单库，其CMakeLists.txt可以这样编写(见cmake/learn/testCMakeLib)：
 ```
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-```
-实际上，PICMake本身核心只有一个文件，那就是cmake目录下面的那个，用户可以直接将它放在自己的项目中！为了让大家了解到PICMake的使用方式，我们把项目本身设计成了一个cmake工程，工程本身就是一个使用的例子哦～
-对于安装后的PICMake，可使用`sudo make uninstall` 进行卸载，不要问我卸载是在哪里支持的，这是PICMake的秘密～～
+# + testCMakeLib
+# -- showImage.cpp
+# -- showImage.h
+# -- CMakeLists.txt
 
-#### 1.3. 目录结构
-PICMake的目录结构如下：
-```
-+- PICMake
-++- CMakeLists          -- PICMake安装文件与库示例
-++- README.md           -- PICMake介绍文件
-++- cmake               -- cmake相关
-+++- PICMake.cmake.in   -- 安装支持文件
-+++- PICMake.cmake      -- PICMake的主体文档
-+++- CMake.md           -- CMake学习文档
-+++- learn              -- 辅助学习的文件夹
-+++- Find*.cmake        -- 依赖包寻找脚本
-++- src                 -- 库框架示例
-++- examples            -- 使用示例
+cmake_minimum_required(VERSION 2.8)
+project(showImage)
+
+find_package(OpenCV REQUIRED) # find OpenCV
+
+include_directories(${OPENCV_INCLUDES})
+add_library(${PROJECT_NAME} SHARED showImage.cpp)
+target_link_libraries(${PROJECT_NAME} opencv_highgui)
 ```
 
-## 2. PICMake的使用介绍
-### 2.1. 使用PICMake编译简单可执行和库文件
-在前面我们已经简单提到，使用PICMake只需要一行即可完成可执行和库编译，而实际上我们建议在加上固定的两行，标准的写法应该如下(例子详见`examples/0_simple_app`)：
-```
-cmake_minimum_required(VERSION 2.8)     # 添加原因： 新版本的cmake规定第一行应该声明版本需求
-include(PICMake)                        # 加载PICMake支持，也可以直接include(cmake/PICMake.cmake)
-pi_add_target(simple_library SHARED showImage.cpp REQUIRED OpenCV)# 编译依赖OpenCV的简单库
-pi_report_target()                      # 添加原因： PICMake建议加上用于报告最终将被编译的目标
-```
-可以看到添加的两行基本上是比较固定的，第一行是CMake的规定，最后一行是用于报告将会被编译的目标文件。
-这里用到的一个核心函数是`pi_add_target`,其用法是:
-`pi_add_target(<name> <BIN/STATIC/SHARED> <src1/dir1　...>`<br>`　　　　　　　　 [MODULES module1 ...] `<br>`　　　　　　　　 [REQUIRED module1 ...]`<br>`　　　　　　　　 [DEPENDENCY target1 ...])`
-第一个参数是目标名称，第二个参数是编译目标类型，第三个参数是要添加的源文件或文件夹，`MODULES`代表的是非必须第三方库列表，程序里可通过`#ifdef HAS_QT`宏选择性编译相关代码，`REQUIRED`代表必须的第三方库列表, `DEPENDENCY`代表当前目标所依赖的target。
+### 3.2. 利用CMake编译复杂库
+此部分可参考OpenCV，POCO等库的做法，也可以参考本路径使用PICMake的做法。
 
-### 2.2. 使用PICMake编译多个目标并安装
-对于较大一些的工程，往往包含多个目标和库，同时可能包含需要安装的目标，而本项目本身就展示了这样一个工程的PICMake写法（详见本工程"CMakeLists.txt")：
-```
-cmake_minimum_required(VERSION 2.6)
-project(PICMake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/PICMake.cmake)# Use PICMake
-
-if(FALSE) # Tree style
-  add_subdirectory(src)
-else()  # All in one
-  pi_add_target(StaticLibDemo STATIC src/StaticLibDemo) # 静态库示例
-  pi_add_target(SharedLibDemo SHARED src/SharedLibDemo) # 动态库示例
-  pi_add_target(AppDemo BIN src/AppDemo DEPENDENCY StaticLibDemo SharedLibDemo REQUIRED OpenCV) # 依赖前两个库的可执行文件
-  pi_add_target(ConditionalApp BIN src/ConditionalApp MODULES PIL Qt System REQUIRED OpenCV) #条件编译示例
-endif()
-
-pi_install(CMAKE ${PROJECT_SOURCE_DIR}/cmake/PICMake.cmake.in)# 安装文件示例，其中自动支持卸载
-pi_report_target()
-```
-这里添加了一个`pi_install`函数，其详细用法为：
-`pi_install([HEADERS header1/dir1 ...]`<br>`　　　　　　 [TARGETS target1 ...]`<br>`　　　　　　 [CMAKE cmake_config]`<br>`　　　　　　 [BIN_DESTINATION dir] `<br>`　　　　　　 [LIB_DESTINATION dir] `<br>`　　　　　　 [HEADER_DESTINATION dir])`
-### 2.3. 编写PICMake支持的FindPackage.cmake
-对于MODULES和REQUIRED中设定的每一个PACKAGE，PICMake都会调用`find_package`函数去寻找对应的FindPackge.cmake文档。其中FindPackage.cmake文档需要去寻找PACKAGE的头文件路径和库文件模块。
-下表列出了FindPackage的主要输入变量：
-
-| 变量名        | 变量说明      |
-| ------------- |:-------------:|
-|PACKAGE_FIND_NAME|             需要寻找的包名字|
-|PACKAGE_FIND_VERSION|          需要寻找的包版本|
-|PACKAGE_FIND_VERSION_MAJOR|    需要寻找的主版本号|
-|PACKAGE_FIND_VERSION_MINOR|    需要寻找的次版本号|
-|PACKAGE_FIND_VERSION_PATCH|    需要寻找的版本补丁号|
-|PACKAGE_FIND_COMPONENTS|       需要寻找的组件|
-
-对于指令`find_package(PIL 1.1.0 REQUIRED base cv）`， `PIL_FIND_NAME`即为PIL， `PIL_FIND_VERSION`为1.1.0， 其中`PIL_FIND_VERSION_MAJOR`为1, `PIL_FIND_VERSION_MINOR`为1, `PIL_FIND_VERSION_PATCH`为0， `PIL_FIND_COMPONENTS`为base和cv。
-下表列出了FindPackage.cmake中需要给定的一些参数：
-
-| 变量名        | 变量说明      |
-| ------------- |:-------------:|
-|PACKAGE_FOUND |                判断包PACKAGE是否被成功找到（TRUE,FALSE)|
-|PACKAGE_VERSION |              返回包PACKAGE的版本号字符串|
-|PACKAGE_VERSION_MAJOR |        查找到的主版本号|
-|PACKAGE_VERSION_MINOR |        查找到的次版本号|
-|PACKAGE_VERSION_PATCH |        查找到的版本补丁号|
-|PACKAGE_INCLUDES|              同PACKAGE_INCLUDE_DIR,返回包的头文件地址|
-|PACKAGE_LIBRARIES|             同PACKAGE_LIBRARY,PACKAGE_LIBS，返回包的库依赖|
-|PACKAGE_DEFINITIONS|           返回包中需要的预编译定义|
-
-其详细实现可参考FindPIL.cmake。
-
-## 3. 内建函数和宏
-
-
-| 函数（宏）名        | 函数说明      |
-| ----- |:---|
-|  `pi_collect_packagenames(<RESULT_NAME> [VERBOSE] [path1 ...]`)| Collect all available packages from "Find*.cmake"  files and put the result to RESULT_NAME.
-| `pi_removesource(<VAR_NAME> <regex>)`| Remove all source files with name matches `<regex>`.
-| `pi_hasmainfunc(<RESULT_NAME> source1 ...)`| Look for the source files with *main* function.
-| `pi_add_target(<name> <BIN/STATIC/SHARED> <src1/dir1　...>`<br>`　　　　　　　　 [MODULES module1 ...] `<br>`　　　　　　　　 [REQUIRED module1 ...]`<br>`　　　　　　　　 [DEPENDENCY target1 ...])`|A combination of `add_executable` , `add_library`, `add_definitions` and `target_link_libraries`, `MODULES` includes packges or targets inessential and `REQUIRED` includes packages or target required,`DEPENDENCY` is used to include targets not defined and will be added after.
-|`pi_add_targets([name1 ...])`| Add one or more targets, if one, please set `TARGET_NAME`, `TARGET_TYPE`, `TARGET_SRCS`, `TARGET_MODULES`, `TARGET_REQUIRED` and so on. If more than one target, replace `TARGET` with `${TARGET_NAME}`.
-|`pi_report_target([LIBS2COMPILE] [APPS2COMPILE])`| Report all targets added.
-|`pi_install([HEADERS header1/dir1 ...]`<br>`　　　　　　 [TARGETS target1 ...]`<br>`　　　　　　 [CMAKE cmake_config]`<br>`　　　　　　 [BIN_DESTINATION dir] `<br>`　　　　　　 [LIB_DESTINATION dir] `<br>`　　　　　　 [HEADER_DESTINATION dir])`| A combination of multi install commands and auto support `make install` and `make uninstall`.
-|`pi_collect_packages(<RESULT_NAME> [VERBOSE] `<br>`　　　　　　　　　　　　[MODULES package1 ...]`<br>`　　　　　　　　　　　　[REQUIRED package1 package2 ...])`| Find multi packages with `find_package()` and collect available packages to `RESULT_NAME`. All packages will be checked and once with `VERBOSE` ON, all information will be reported.
-|`pi_check_modules(module1 [module2 ...])`| Let module name to upper and make valid `_FOUND`, `_INCLUDES`, `_LIBRARIES`, `_DEFINITIONS`.
-|`pi_report_modules(module1 [module2 ...])`| Report packages information summary.
-
-## 4. CMake附录
+## 4. 附录
 
 ### 4.1. CMake常用变量
 | 变量名        | 变量说明      |

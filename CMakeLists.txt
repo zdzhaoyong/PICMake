@@ -3,7 +3,7 @@ project(PICMake)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/PICMake.cmake)# Use PICMake
 
-if(FALSE)# Tree style
+if(TRUE)# Tree style
   add_subdirectory(src)
 else()  # All in one
   pi_add_target(StaticLibDemo STATIC src/StaticLibDemo)

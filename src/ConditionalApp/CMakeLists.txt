@@ -1,4 +1,3 @@
 include(PICMake)
-set(TARGET_REQUIRED OpenCV)
-set(TARGET_MODULES Qt PIL QGLViewer)
-pi_add_targets()
+pi_add_target(ConditionalApp BIN MODULES Qt PIL QGLViewer REQUIRED OpenCV)
+

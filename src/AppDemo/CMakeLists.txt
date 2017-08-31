@@ -1,2 +1,2 @@
 include(PICMake)
-pi_add_target(AppDemo BIN . DEPENDENCY StaticLibDemo SharedLibDemo)
+pi_add_target(AppDemo BIN main.cpp DEPENDENCY StaticLibDemo SharedLibDemo)

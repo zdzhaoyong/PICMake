@@ -58,7 +58,9 @@ pi_report_target()                      # 添加原因： PICMake建议加上用
 ```
 可以看到添加的两行基本上是比较固定的，第一行是CMake的规定，最后一行是用于报告将会被编译的目标文件。
 这里用到的一个核心函数是`pi_add_target`,其用法是:
+
 `pi_add_target(<name> <BIN/STATIC/SHARED> <src1/dir1　...>`<br>`　　　　　　　　 [MODULES module1 ...] `<br>`　　　　　　　　 [REQUIRED module1 ...]`<br>`　　　　　　　　 [DEPENDENCY target1 ...])`
+
 第一个参数是目标名称，第二个参数是编译目标类型，第三个参数是要添加的源文件或文件夹，`MODULES`代表的是非必须第三方库列表，程序里可通过`#ifdef HAS_QT`宏选择性编译相关代码，`REQUIRED`代表必须的第三方库列表, `DEPENDENCY`代表当前目标所依赖的target。
 
 ### 2.2. 使用PICMake编译多个目标并安装
@@ -81,7 +83,9 @@ pi_install(CMAKE ${PROJECT_SOURCE_DIR}/cmake/PICMake.cmake.in)# 安装文件示�
 pi_report_target()
 ```
 这里添加了一个`pi_install`函数，其详细用法为：
+
 `pi_install([HEADERS header1/dir1 ...]`<br>`　　　　　　 [TARGETS target1 ...]`<br>`　　　　　　 [CMAKE cmake_config]`<br>`　　　　　　 [BIN_DESTINATION dir] `<br>`　　　　　　 [LIB_DESTINATION dir] `<br>`　　　　　　 [HEADER_DESTINATION dir])`
+
 ### 2.3. 编写PICMake支持的FindPackage.cmake
 对于MODULES和REQUIRED中设定的每一个PACKAGE，PICMake都会调用`find_package`函数去寻找对应的FindPackge.cmake文档。其中FindPackage.cmake文档需要去寻找PACKAGE的头文件路径和库文件模块。
 下表列出了FindPackage的主要输入变量：

@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 project(PICMake)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/PICMake.cmake)# Use PICMake
 
-if(TRUE)# Tree style
+if(FALSE)# Tree style
   add_subdirectory(src)
 else()  # All in one
   pi_add_target(StaticLibDemo STATIC src/StaticLibDemo)

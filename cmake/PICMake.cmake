@@ -1,5 +1,13 @@
+# Original code by Yong Zhao (www.zhaoyong.win)
+
+# This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
+# Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+# 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+# 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+# 3. This notice may not be removed or altered from any source distribution.
+
 ######################################################################################
-# PICMake VERSION 1.2.0
+# PICMake VERSION 1.2.1
 # HISTORY:
 #   1.0.0 2017.01.04 : first commit, one include for one target.
 #   1.1.0 2017.01.09 : support multi targets, reorgnized functions and macros.
@@ -9,6 +17,7 @@
 #                      fixed bug of failed make uninstall
 #   1.1.3 2017.03.05 : fixed bug of pi_install when add header files
 #   1.2.0 2017.08.30 : removed dependency of violate pi_collect_packages and auto call it when required, mv pi_add_target and pi_add_targets to macros
+#   1.2.1 2017.09.01 : added lisence and auto get PI_CMAKE_VERSION, change REQUIRED to MODULES for auto package collect
 ######################################################################################
 #                               FUNCTIONS
 # pi_collect_packagenames(<RESULT_NAME>　[VERBOSE] [path1 path2 ...])
@@ -35,10 +44,15 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 set(PICMAKE_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
-set(PI_CMAKE_VERSION_MAJOR 1)
-set(PI_CMAKE_VERSION_MINOR 2)
-set(PI_CMAKE_VERSION_PATCH 0)
-set(PI_CMAKE_VERSION "${PI_CMAKE_VERSION_MAJOR}.${PI_CMAKE_VERSION_MINOR}.${PI_CMAKE_VERSION_PATCH}")
+file(READ "${CMAKE_CURRENT_LIST_DIR}/PICMake.cmake" _thisfilecontext)
+string(REGEX MATCH "PICMake[ \t]+VERSION[ \t]+([0-9])+.[0-9]+.[0-9]+" _pi_cmake_version_match "${_thisfilecontext}")
+set(PICMAKE_VERSION_MAJOR "${CMAKE_MATCH_1}")
+string(REGEX MATCH "PICMake[ \t]+VERSION[ \t]+[0-9]+.([0-9])+.[0-9]+" _pi_cmake_version_match "${_thisfilecontext}")
+set(PICMAKE_VERSION_MINOR "${CMAKE_MATCH_1}")
+string(REGEX MATCH "PICMake[ \t]+VERSION[ \t]+[0-9]+.[0-9]+.([0-9])+" _pi_cmake_version_match "${_thisfilecontext}")
+set(PICMAKE_VERSION_PATCH "${CMAKE_MATCH_1}")
+set(PICMAKE_VERSION "${PICMAKE_VERSION_MAJOR}.${PICMAKE_VERSION_MINOR}.${PICMAKE_VERSION_PATCH}")
+# message("-------- Powered by PICMake ${PICMAKE_VERSION} --------")
 
 # pi_collect_packagenames(<RESULT_NAME> [path1 path2 ...])
 function(pi_collect_packagenames RESULT_NAME)
@@ -263,7 +277,7 @@ macro(pi_add_target TARGET_NAME TARGET_TYPE)
   set(TARGET_DEPENDENCY ${PI_TARGET_DEPENDENCY})
 
   if(TARGET_MODULES OR TARGET_REQUIRED)
-    pi_collect_packages(VERBOSE MODULES ${TARGET_MODULES} REQUIRED ${TARGET_REQUIRED})
+    pi_collect_packages(VERBOSE MODULES ${TARGET_MODULES} ${TARGET_REQUIRED})
   endif()
 
   set(TARGET_COMPILEFLAGS)
@@ -527,7 +541,7 @@ endmacro()
 macro(pi_report_modules)
   pi_check_modules(${ARGV})
   foreach(MODULE_NAME ${ARGV})
-    message("--------------------------------------")
+    message("------------------------------------------")
     string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
     if(${MODULE_NAME_UPPER}_VERSION)
       message("--${MODULE_NAME}: VERSION ${${MODULE_NAME_UPPER}_VERSION}")

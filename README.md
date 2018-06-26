@@ -2,6 +2,8 @@
 
 ---
 
+[![Build Status](https://travis-ci.org/zdzhaoyong/PICMake.svg?branch=master)](https://travis-ci.org/zdzhaoyong/PICMake)
+
 ## 1. PICMake简介
 ### 1.1. PICMake是神马？
 你还在学[CMake](./cmake/CMake.md)的过程中毫无头绪吗？你还在为复杂程序库依赖发愁吗？你是否觉得原生CMake的编写冗余而低效？那就快来学习和使用PICMake吧！只需要一行，无论是可执行，动态库还是静态库，轻松搞定！同时高效支持多目标，复杂库的编译安装，从此告别大量冗余CMake代码，专注开发核心应用程序，编译不再愁！

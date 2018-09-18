@@ -21,6 +21,7 @@
 #   1.2.2 2017.09.12 : fixed bug of pi_add_target should not call return() in macros when dependency not meet
 #   1.2.3 2017.12.27 : fixed bug of multi pi_install
 #   1.2.4 2018.04.16 : enable auto CUDA support
+#   1.2.5 2018.09.17 : add GLOBAL value TARGETS2COMPILE, let add_definition only for one target
 ######################################################################################
 #                               FUNCTIONS
 # pi_collect_packagenames(<RESULT_NAME>　[VERBOSE] [path1 path2 ...])
@@ -298,14 +299,14 @@ function(pi_add_target_f TARGET_NAME TARGET_TYPE)
         file(GLOB_RECURSE PATH_CUDA_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${PI_TARGET_SRC}/*.cu)
         list(APPEND TARGET_SRCS ${PATH_SOURCE_FILES})
         list(APPEND CUDA_SRCS ${PATH_CUDA_FILES})
-      elseif("${ABSOLUTE_PATH}" MATCHES ".cu$")
-        list(APPEND CUDA_SRCS {PI_TARGET_SRC})
+      elseif("${ABSOLUTE_PATH}" MATCHES ".cu")
+        list(APPEND CUDA_SRCS ${PI_TARGET_SRC})
       else()
         list(APPEND TARGET_SRCS ${PI_TARGET_SRC})
       endif()
   endforeach()
 
-  if(NOT TARGET_SRCS)
+  if(NOT TARGET_SRCS AND NOT CUDA_SRCS)
     message("add_target(${ARGV}) need at least 1 source file.")
     return()
   endif()
@@ -354,7 +355,7 @@ function(pi_add_target_f TARGET_NAME TARGET_TYPE)
   endforeach()
 
   include_directories(${TARGET_COMPILEFLAGS})
-  add_definitions(${TARGET_DEFINITIONS})
+# add_definitions(${TARGET_DEFINITIONS})
 
   if(TARGET_TYPE STREQUAL "BIN")
     set_property( GLOBAL APPEND PROPERTY APPS2COMPILE  " ${TARGET_NAME}")
@@ -401,12 +402,14 @@ function(pi_add_target_f TARGET_NAME TARGET_TYPE)
   #message("TARGET_REQUIRED: ${TARGET_REQUIRED}")
   #message("TARGET_COMPILEFLAGS: ${TARGET_COMPILEFLAGS}")
 
+  target_compile_definitions(${TARGET_NAME} PRIVATE ${TARGET_DEFINITIONS})
   target_link_libraries(${TARGET_NAME} ${TARGET_LINKFLAGS} ${TARGET_DEPENDENCY})
   list(APPEND TARGET_MODULES ${TARGET_REQUIRED})
   if("${TARGET_MODULES}" MATCHES "Qt|QT|qt")
       #message("Compile ${TARGET_NAME} with AUTOMOC (${TARGET_MODULES})")
       set_target_properties(${TARGET_NAME} PROPERTIES AUTOMOC TRUE)
   endif()
+  set_property( GLOBAL APPEND PROPERTY TARGETS2COMPILE  ${TARGET_NAME})
 
 endfunction(pi_add_target_f)
 

@@ -3,6 +3,10 @@ project(PICMake)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/PICMake.cmake)# Use PICMake
 
+pi_git_hash(GIT_VERSION)
+
+message("GIT_VERSION: " ${GIT_VERSION})
+
 if(FALSE)# Tree style
   add_subdirectory(src)
 else()  # All in one

@@ -8,7 +8,7 @@
 # 3. This notice may not be removed or altered from any source distribution.
 
 ######################################################################################
-# PICMake VERSION 1.2.7
+# PICMake VERSION 1.2.8
 # HISTORY:
 #   1.0.0 2017.01.04 : first commit, one include for one target.
 #   1.1.0 2017.01.09 : support multi targets, reorgnized functions and macros.

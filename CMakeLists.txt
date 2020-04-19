@@ -7,7 +7,7 @@ pi_git_hash(GIT_VERSION)
 
 message("GIT_VERSION: " ${GIT_VERSION})
 
-if(FALSE)# Tree style
+if(TRUE)# Tree style
   add_subdirectory(src)
 else()  # All in one
   pi_add_target(StaticLibDemo STATIC src/StaticLibDemo)
@@ -20,3 +20,9 @@ pi_report_target()
 
 # Install things
 pi_install(CMAKE ${PROJECT_SOURCE_DIR}/cmake/PICMake.cmake.in)
+
+#####################################################################
+# Add Tab Completion Support
+if(UNIX)
+    install(SCRIPT ${CMAKE_CURRENT_LIST_DIR}/cmake/tab_completion.cmake)
+endif()

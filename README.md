@@ -51,6 +51,12 @@ PICMake的目录结构如下：
 
 ## 2. PICMake的使用介绍
 ### 2.1. 使用PICMake编译简单可执行和库文件
+新的PICMake支持自动生成CMakeList.txt文件啦，如下项目只需要一行命令自动生成：
+
+```
+picmake -m shared -src showImage.cpp -require OpenCV
+```
+
 在前面我们已经简单提到，使用PICMake只需要一行即可完成可执行和库编译，而实际上我们建议在加上固定的两行，标准的写法应该如下(例子详见`examples/0_simple_app`)：
 ```
 cmake_minimum_required(VERSION 2.8)     # 添加原因： 新版本的cmake规定第一行应该声明版本需求

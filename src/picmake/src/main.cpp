@@ -18,6 +18,7 @@ int main(int argc,char** argv)
     std::string srcs=svar.arg<std::string>("src","src","The source cpp folders for files, eg: main.cpp,src");
     std::string standard=svar.arg<std::string>("standard","11","The c++ standard wanna use");
     std::string build=svar.arg<std::string>("build","","The folder to hold the build targets");
+    bool        install=svar.arg("install",true,"Auto generate install& uninstall");
 
     if(svar.get("help",false)) return svar.help();
 
@@ -57,6 +58,14 @@ int main(int argc,char** argv)
     sst<<")\n";
 
     sst<<"\npi_report_target()";
+
+    if(install){
+
+        sst<<"\n\n# Now do make install";
+
+        sst<<"\nget_property(TARGETS2COMPILE GLOBAL PROPERTY TARGETS2COMPILE)";
+        sst<<"\npi_install(TARGETS ${TARGETS2COMPILE})";
+    }
 
 
     std::cout<<sst.str()<<std::endl;

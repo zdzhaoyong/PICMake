@@ -18,6 +18,7 @@ int main(int argc,char** argv)
     std::string srcs=svar.arg<std::string>("src","src","The source cpp folders for files, eg: main.cpp,src");
     std::string standard=svar.arg<std::string>("standard","11","The c++ standard wanna use");
     std::string build=svar.arg<std::string>("build","","The folder to hold the build targets");
+    std::string build_type=svar.arg<std::string>("build_type","Release","CMAKE_BUILD_TYPE: Default, Release, Debug");
     bool        install=svar.arg("install",true,"Auto generate install& uninstall");
 
     if(svar.get("help",false)) return svar.help();
@@ -33,6 +34,10 @@ int main(int argc,char** argv)
     sst<<"\ninclude(PICMake)"<<std::endl;
 
     sst<<"set(CMAKE_CXX_STANDARD "<<standard<<")"<<std::endl;
+
+    sst<<"if(NOT CMAKE_BUILD_TYPE)"<<std::endl;
+    sst<<"  set(CMAKE_BUILD_TYPE "<<build_type<<")"<<std::endl;
+    sst<<"endif()\n"<<std::endl;
 
     sv::Svar requires_vec=VecParament<std::string>(requires).data;
     sv::Svar srcs_vec= VecParament<std::string>(srcs).data;

@@ -68,8 +68,8 @@ int main(int argc,char** argv)
 
         sst<<"\n\n# Now do make install";
 
-        sst<<"\nget_property(TARGETS2COMPILE GLOBAL PROPERTY TARGETS2COMPILE)";
-        sst<<"\npi_install(TARGETS ${TARGETS2COMPILE})";
+        //sst<<"\nget_property(TARGETS2COMPILE GLOBAL PROPERTY TARGETS2COMPILE)";
+        sst<<"\npi_install(TARGETS "<<name<<")";
     }
 
 

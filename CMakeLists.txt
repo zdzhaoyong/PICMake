@@ -6,6 +6,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/PICMake.cmake)# Use PICMake
 pi_git_hash(GIT_VERSION)
 
 message("GIT_VERSION: " ${GIT_VERSION})
+add_definitions(-DBUILD_VERSION=\"${GIT_VERSION}\")
 
 if(TRUE)# Tree style
   add_subdirectory(src)

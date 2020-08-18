@@ -10,20 +10,28 @@ std::string getName(){
 
 int main(int argc,char** argv)
 {
-    svar.parseMain(argc,argv);
+    sv::Svar options;
+    options.parseMain(argc,argv);
 
-    std::string mode=svar.arg<std::string>("m","bin","The target compile mode: bin,shared,static");
-    std::string name=svar.arg<std::string>("name",getName(),"The target name, default is the parent folder name");
-    std::string requires=svar.arg<std::string>("require","","The required dependencies");
-    std::string srcs=svar.arg<std::string>("src","src","The source cpp folders for files, eg: main.cpp,src");
-    std::string standard=svar.arg<std::string>("standard","11","The c++ standard wanna use");
-    std::string build=svar.arg<std::string>("build","","The folder to hold the build targets");
-    std::string build_type=svar.arg<std::string>("build_type","Release","CMAKE_BUILD_TYPE: Default, Release, Debug");
-    bool        install=svar.arg("install",true,"Auto generate install& uninstall");
+    std::string mode=options.arg<std::string>("m","bin","The target compile mode: bin,shared,static");
+    std::string name=options.arg<std::string>("name",getName(),"The target name, default is the parent folder name");
+    std::string requires=options.arg<std::string>("require","","The required dependencies");
+    std::string srcs=options.arg<std::string>("src","src","The source cpp folders for files, eg: main.cpp,src");
+    std::string standard=options.arg<std::string>("standard","11","The c++ standard wanna use");
+    std::string build=options.arg<std::string>("build","","The folder to hold the build targets");
+    std::string build_type=options.arg<std::string>("build_type","Release","CMAKE_BUILD_TYPE: Default, Release, Debug");
+    bool        install=options.arg("install",true,"Auto generate install& uninstall");
+    bool        version=options.arg("version",false,"Show version information");
+    bool        force  =options.arg("force",false,"Force overwrite when CMakeLists.txt existed.");
 
-    if(svar.get("help",false)) return svar.help();
+    if(options.get("help",false)) return options.help();
 
-    if(filesystem::exists("CMakeLists.txt")) {
+    if(version){
+        std::cout<<svar["__builtin__"]<<std::endl;
+        return 0;
+    }
+
+    if(!force&&filesystem::exists("CMakeLists.txt")) {
         std::cout<<"CMakeLists.txt already exists, abort generating."<<std::endl;
         return 0;
     }
@@ -67,8 +75,6 @@ int main(int argc,char** argv)
     if(install){
 
         sst<<"\n\n# Now do make install";
-
-        //sst<<"\nget_property(TARGETS2COMPILE GLOBAL PROPERTY TARGETS2COMPILE)";
         sst<<"\npi_install(TARGETS "<<name<<")";
     }
 
@@ -79,7 +85,12 @@ int main(int argc,char** argv)
 
     if(build.size()&&!abortbuild){
        GSLAM::filesystem::create_directories(build);
-       std::system(("cd "+build+" ; cmake .. ; make").c_str());
+       std::string cmd=("cd "+build+" ; cmake .. ; cmake --build .");
+       std::cout<<cmd<<std::endl;
+       std::cout<<std::system(cmd.c_str())<<std::endl;
+//       cmd=("cmake --build "+build);
+//       std::cout<<cmd<<std::endl;
+//       std::cout<<std::system(cmd.c_str())<<std::endl;
     }
 
     return 0;
